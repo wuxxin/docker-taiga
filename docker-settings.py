@@ -1,10 +1,12 @@
 # Importing common provides default settings, see:
 # https://github.com/taigaio/taiga-back/blob/master/settings/common.py
 from .common import *
-import dj_database_url
+import dj_database_url, re
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {'default': dj_database_url.config() }
+    DATABASES['default']['ENGINE'] = 
+        re.sub('django.db(.+)', 'transaction_hooks\\1', DATABASES['default']['ENGINE'])
 else:
     DATABASES = {
     'default': {
