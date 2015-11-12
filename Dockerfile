@@ -14,6 +14,7 @@ RUN set -x; \
     && apt-get install -y --no-install-recommends \
         locales \
         ca-certificates \
+        wget \
         nginx=${NGINX_VERSION} \
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,6 +31,8 @@ COPY conf/nginx/taiga-events.conf /etc/nginx/taiga-events.conf
 
 # Setup symbolic links for configuration files
 RUN mkdir -p /taiga
+COPY conf/taiga/requirements-extra.txt /taiga/requirements-extra.txt
+COPY conf/taiga/frontend-extra-download.sh /taiga/frontend-extra-download.sh
 COPY conf/taiga/local.py /taiga/local.py
 COPY conf/taiga/conf.json /taiga/conf.json
 RUN ln -s /taiga/local.py /usr/src/taiga-back/settings/local.py
@@ -38,7 +41,7 @@ RUN ln -s /taiga/conf.json /usr/src/taiga-front-dist/dist/js/conf.json
 WORKDIR /usr/src/taiga-back
 
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir dj_database_url
+RUN pip install --no-cache-dir -r /taiga/requirements-extra.txt
 
 RUN echo "LANG=en_US.UTF-8" > /etc/default/locale
 RUN echo "LC_TYPE=en_US.UTF-8" > /etc/default/locale
@@ -55,6 +58,12 @@ ENV TAIGA_DB_NAME postgres
 ENV TAIGA_DB_USER postgres
 
 RUN python manage.py collectstatic --noinput
+
+# download extra frontend files
+WORKDIR /usr/src/taiga-front-dist/dist/js
+RUN chmod +x /taiga/frontend-extra-download.sh
+RUN /taiga/frontend-extra-download.sh
+WORKDIR /usr/src/taiga-back
 
 RUN locale -a
 
