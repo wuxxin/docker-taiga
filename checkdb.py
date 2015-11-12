@@ -6,7 +6,7 @@ DB_USER = os.getenv('TAIGA_DB_USER')
 DB_PASS = os.getenv('POSTGRES_ENV_POSTGRES_PASSWORD') or os.getenv('TAIGA_DB_PASSWORD')
 
 if os.getenv('DATABASE_URL'):
-    d= dj_database_url()
+    d= dj_database_url.config()
     DB_NAME= d['NAME']
     DB_HOST= d['HOST']
     DB_USER= d['USER']
