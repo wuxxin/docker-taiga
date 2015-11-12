@@ -4,7 +4,7 @@ from .common import *
 import dj_database_url
 
 if os.getenv('DATABASE_URL'):
-    DATABASES = {'default': dj_databse_url.config() }
+    DATABASES = {'default': dj_database_url.config() }
 else:
     DATABASES = {
     'default': {
