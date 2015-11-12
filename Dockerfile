@@ -38,6 +38,7 @@ RUN ln -s /taiga/conf.json /usr/src/taiga-front-dist/dist/js/conf.json
 WORKDIR /usr/src/taiga-back
 
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir dj_database_url
 
 RUN echo "LANG=en_US.UTF-8" > /etc/default/locale
 RUN echo "LC_TYPE=en_US.UTF-8" > /etc/default/locale

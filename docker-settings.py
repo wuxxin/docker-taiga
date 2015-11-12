@@ -1,16 +1,20 @@
 # Importing common provides default settings, see:
 # https://github.com/taigaio/taiga-back/blob/master/settings/common.py
 from .common import *
+import dj_database_url
 
-DATABASES = {
+if os.getenv('DATABASE_URL'):
+    DATABASES = {'default': dj_databse_url.config() }
+else:
+    DATABASES = {
     'default': {
         'ENGINE': 'transaction_hooks.backends.postgresql_psycopg2',
         'NAME': os.getenv('TAIGA_DB_NAME'),
         'HOST': os.getenv('POSTGRES_PORT_5432_TCP_ADDR') or os.getenv('TAIGA_DB_HOST'),
         'USER': os.getenv('TAIGA_DB_USER'),
         'PASSWORD': os.getenv('POSTGRES_ENV_POSTGRES_PASSWORD') or os.getenv('TAIGA_DB_PASSWORD')
+        }
     }
-}
 
 TAIGA_HOSTNAME = os.getenv('TAIGA_HOSTNAME')
 
