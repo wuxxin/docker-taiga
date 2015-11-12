@@ -5,8 +5,8 @@ import dj_database_url, re
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {'default': dj_database_url.config() }
-    DATABASES['default']['ENGINE'] = 
-        re.sub('django.db(.+)', 'transaction_hooks\\1', DATABASES['default']['ENGINE'])
+    DATABASES['default']['ENGINE'] = re.sub(
+        'django.db(.+)', 'transaction_hooks\\1', DATABASES['default']['ENGINE'])
 else:
     DATABASES = {
     'default': {
