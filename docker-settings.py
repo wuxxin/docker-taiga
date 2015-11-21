@@ -3,6 +3,10 @@
 from .common import *
 import dj_database_url, re
 
+DEBUG = os.getenv('TAIGA_DEBUG', 'false').lower() == 'true'
+TEMPLATE_DEBUG = os.getenv('TAIGA_TEMPLATE_DEBUG', 'false').lower() == 'true'
+PUBLIC_REGISTER_ENABLED = os.getenv('TAIGA_PUBLIC_REGISTER_ENABLED', 'false').lower() == 'true'
+
 if os.getenv('DATABASE_URL'):
     DATABASES = {'default': dj_database_url.config() }
     DATABASES['default']['ENGINE'] = re.sub(
@@ -34,6 +38,14 @@ if os.getenv('TAIGA_SSL').lower() == 'true':
     STATIC_URL = 'https://' + TAIGA_HOSTNAME + '/static/'
 
 SECRET_KEY = os.getenv('TAIGA_SECRET_KEY')
+
+if os.getenv('EMAIL_ENABLED','false').lower() == "true":
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv('EMAIL_HOST')
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS','false').lower() == 'true'
 
 if os.getenv('RABBIT_PORT') is not None and os.getenv('REDIS_PORT') is not None:
     from .celery import *
