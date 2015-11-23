@@ -15,7 +15,7 @@ RUN set -x; \
         ca-certificates \
         wget \
         supervisor \
-        nginx=${NGINX_VERSION} \
+        nginx \
     && rm -rf /var/lib/apt/lists/*
 
 # setup locale
