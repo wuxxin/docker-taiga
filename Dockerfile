@@ -28,6 +28,7 @@ RUN echo "LANGUAGE=en" >> /etc/default/locale
 ENV LANG en_US.UTF-8
 ENV LC_TYPE en_US.UTF-8
 
+# setup fallback env
 ENV TAIGA_SSL False
 ENV TAIGA_HOSTNAME localhost
 ENV TAIGA_SECRET_KEY "!!!REPLACE-ME-j1598u1J^U*(y251u98u51u5981urf98u2o5uvoiiuzhlit3)!!!"
@@ -41,15 +42,9 @@ RUN adduser app --disabled-password --home /app
 COPY taiga-back /app/taiga-back
 COPY taiga-front-dist/ /app/taiga-front-dist
 
-# Setup symbolic links for configuration files on data volume
+# Setup symbolic links for conf and files on data volume
 RUN for a in conf media; do if test ! -d /data/$a; then mkdir -p /data/$a ; fi; done
 RUN if test ! -L /app/media; then ln -s /data/media /app/media ; fi
-RUN mkdir -p /app/static
-COPY conf/taiga/requirements-extra.txt /data/conf/requirements-extra.txt
-COPY conf/taiga/frontend-extra-download.sh /data/conf/frontend-extra-download.sh
-COPY conf/taiga/local.py /data/conf/local.py
-COPY conf/taiga/conf.json /data/conf/conf.json
-COPY conf/taiga/docker-settings.py /app/taiga-back/settings/docker.py
 RUN ln -s /data/conf/local.py /app/taiga-back/settings/local.py
 RUN ln -s /data/conf/conf.json /app/taiga-front-dist/dist/js/conf.json
 
@@ -63,11 +58,18 @@ RUN  service nginx stop
 # install python packages
 WORKDIR /app/taiga-back
 RUN pip install --no-cache-dir -r requirements.txt
+COPY conf/taiga/requirements-extra.txt /data/conf/requirements-extra.txt
 RUN pip install --no-cache-dir -r /data/conf/requirements-extra.txt
 
 # download extra frontend files
+COPY conf/taiga/frontend-extra-download.sh /data/conf/frontend-extra-download.sh
 RUN chmod +x /data/conf/frontend-extra-download.sh
 RUN /data/conf/frontend-extra-download.sh
+
+# copy local config files
+COPY conf/taiga/local.py /data/conf/local.py
+COPY conf/taiga/conf.json /data/conf/conf.json
+COPY conf/taiga/docker-settings.py /app/taiga-back/settings/docker.py
 
 # collect/generate static files
 RUN python manage.py collectstatic --noinput
@@ -82,9 +84,11 @@ RUN locale -a
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-COPY bin/checkdb.py /app/checkdb.py
+# container startup files
+COPY conf/supervisord.conf /app/supervisord.conf
 COPY bin/gunicorn_start.sh /app/gunicorn_start.sh
 COPY bin/taiga_prepare.sh /app/taiga_prepare.sh
+COPY bin/checkdb.py /app/checkdb.py
 
 ENV WEB_CONCURRENCY=2
 
