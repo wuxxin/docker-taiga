@@ -90,7 +90,7 @@ COPY conf/supervisord.conf /app/supervisord.conf
 COPY bin/gunicorn_start.sh /app/gunicorn_start.sh
 COPY bin/taiga_prepare.sh /app/taiga_prepare.sh
 COPY bin/checkdb.py /app/checkdb.py
-RUN for i in gunicorn_start.sh taiga_prepare.sh checkdb.py; do chmod +x $i; done
+RUN for i in gunicorn_start.sh taiga_prepare.sh checkdb.py; do chmod +x /app/$i; done
 
 ENV WEB_CONCURRENCY=2
 
