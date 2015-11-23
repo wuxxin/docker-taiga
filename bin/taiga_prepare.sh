@@ -24,17 +24,17 @@ if [ ! -d "/app/taiga-back/static" ]; then
 fi
 
 # Automatically replace "TAIGA_HOSTNAME" with the environment variable
-sed -i "s/TAIGA_HOSTNAME/$TAIGA_HOSTNAME/g" /data/conf/conf.json
+sed -i "s/TAIGA_HOSTNAME/$TAIGA_HOSTNAME/g" /app/conf.json
 
 # Look to see if we should set the "eventsUrl"
 if [ ! -z "$RABBIT_PORT_5672_TCP_ADDR" ]; then
-  sed -i "s/eventsUrl\": null/eventsUrl\": \"ws:\/\/$TAIGA_HOSTNAME\/events\"/g" /data/conf/conf.json
+  sed -i "s/eventsUrl\": null/eventsUrl\": \"ws:\/\/$TAIGA_HOSTNAME\/events\"/g" /app/conf.json
 fi
 
 # Handle enabling SSL
 if [ "$TAIGA_SSL" = "True" ]; then
   echo "Enabling SSL support!"
-  sed -i "s/http:\/\//https:\/\//g" /data/conf/conf.json
-  sed -i "s/ws:\/\//wss:\/\//g" /data/conf/conf.json
+  sed -i "s/http:\/\//https:\/\//g" /app/conf.json
+  sed -i "s/ws:\/\//wss:\/\//g" /app/conf.json
   mv /etc/nginx/ssl.conf /etc/nginx/conf.d/default.conf
 fi

@@ -43,34 +43,37 @@ RUN adduser app --disabled-password --home /app
 COPY taiga-back /app/taiga-back
 COPY taiga-front-dist/ /app/taiga-front-dist
 
-# Setup symbolic links for conf and files on data volume
-RUN for a in conf media; do if test ! -d /data/$a; then mkdir -p /data/$a ; fi; done
-RUN if test ! -L /app/media; then ln -s /data/media /app/media ; fi
-RUN ln -s /data/conf/local.py /app/taiga-back/settings/local.py
-RUN ln -s /data/conf/conf.json /app/taiga-front-dist/dist/js/conf.json
-
 # nginx config
 COPY conf/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY conf/nginx/taiga.conf /etc/nginx/conf.d/default.conf
 COPY conf/nginx/ssl.conf /etc/nginx/ssl.conf
 COPY conf/nginx/taiga-events.conf /etc/nginx/taiga-events.conf
 RUN  service nginx stop
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 # install python packages
 WORKDIR /app/taiga-back
 RUN pip install --no-cache-dir -r requirements.txt
-COPY conf/taiga/requirements-extra.txt /data/conf/requirements-extra.txt
-RUN pip install --no-cache-dir -r /data/conf/requirements-extra.txt
+COPY conf/taiga/requirements-extra.txt /app/requirements-extra.txt
+RUN pip install --no-cache-dir -r /app/requirements-extra.txt
 
 # download extra frontend files
-COPY conf/taiga/frontend-extra-download.sh /data/conf/frontend-extra-download.sh
-RUN chmod +x /data/conf/frontend-extra-download.sh
-RUN /data/conf/frontend-extra-download.sh
+COPY conf/taiga/frontend-extra-download.sh /app/frontend-extra-download.sh
+RUN chmod +x /app/frontend-extra-download.sh
+RUN /app/frontend-extra-download.sh
 
 # copy local config files
-COPY conf/taiga/local.py /data/conf/local.py
-COPY conf/taiga/conf.json /data/conf/conf.json
+COPY conf/taiga/local.py /app/local.py
+COPY conf/taiga/conf.json /app/conf.json
 COPY conf/taiga/docker-settings.py /app/taiga-back/settings/docker.py
+
+# Setup symbolic links for conf and files on data volume
+RUN for a in conf media; do if test ! -d /data/$a; then mkdir -p /data/$a ; fi; done
+RUN if test ! -L /app/taiga-back/media; then ln -s /data/media /app/taiga-back/media ; fi
+RUN ln -s /app/local.py /app/taiga-back/settings/local.py
+RUN ln -s /app/conf.json /app/taiga-front-dist/dist/js/conf.json
 
 # collect/generate static files
 RUN python manage.py collectstatic --noinput
@@ -80,10 +83,6 @@ RUN chown -R app:app /app/
 
 # regenerate locales
 RUN locale -a
-
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 # container startup files
 COPY conf/supervisord.conf /app/supervisord.conf
