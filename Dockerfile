@@ -97,4 +97,4 @@ ENV WEB_CONCURRENCY=2
 VOLUME ["/data"]
 EXPOSE 80 443
 ENTRYPOINT ["supervisord", "-c", "/app/supervisord.conf"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/bin/bash"]

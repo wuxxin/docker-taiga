@@ -2,7 +2,7 @@
 
 # Setup database automatically if needed
 if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
-  python /usr/local/bin/checkdb.py
+  python /app/checkdb.py
   DB_CHECK_STATUS=$?
 
   if [ $DB_CHECK_STATUS -eq 1 ]; then
