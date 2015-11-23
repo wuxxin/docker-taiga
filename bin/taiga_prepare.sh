@@ -2,7 +2,7 @@
 
 # Setup database automatically if needed
 if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
-  python /checkdb.py
+  python /usr/local/bin/checkdb.py
   DB_CHECK_STATUS=$?
 
   if [ $DB_CHECK_STATUS -eq 1 ]; then
@@ -19,7 +19,7 @@ if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
 fi
 
 # Look for static folder, if it does not exist, then generate it
-if [ ! -d "/home/taiga/taiga-back/static" ]; then
+if [ ! -d "/app/taiga-back/static" ]; then
   python manage.py collectstatic --noinput
 fi
 
@@ -38,10 +38,3 @@ if [ "$TAIGA_SSL" = "True" ]; then
   sed -i "s/ws:\/\//wss:\/\//g" /data/conf/conf.json
   mv /etc/nginx/ssl.conf /etc/nginx/conf.d/default.conf
 fi
-
-# Start nginx service (need to start it as background process)
-# nginx -g "daemon off;"
-service nginx start
-
-# Start Taiga backend Django server
-exec "$@"

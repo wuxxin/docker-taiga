@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os, sys, psycopg2, dj_database_url
 
 DB_NAME = os.getenv('TAIGA_DB_NAME')
