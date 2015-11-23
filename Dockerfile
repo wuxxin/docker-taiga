@@ -89,12 +89,14 @@ RUN ln -sf /dev/stderr /var/log/nginx/error.log
 COPY conf/supervisord.conf /app/supervisord.conf
 COPY bin/gunicorn_start.sh /app/gunicorn_start.sh
 COPY bin/taiga_prepare.sh /app/taiga_prepare.sh
+COPY bin/docker-entrypoint.sh /docker-entrypoint.sh
 COPY bin/checkdb.py /app/checkdb.py
 RUN for i in gunicorn_start.sh taiga_prepare.sh checkdb.py; do chmod +x /app/$i; done
+RUN chmod +x /docker-entrypoint.sh
 
 ENV WEB_CONCURRENCY=2
 
 VOLUME ["/data"]
 EXPOSE 80 443
-ENTRYPOINT /usr/bin/supervisord -c /app/supervisord.conf
-CMD []
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["web"]
