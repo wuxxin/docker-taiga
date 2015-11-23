@@ -96,5 +96,4 @@ ENV WEB_CONCURRENCY=2
 
 VOLUME ["/data"]
 EXPOSE 80 443
-ENTRYPOINT ["supervisord", "-c", "/app/supervisord.conf"]
-CMD ["/bin/bash"]
+ENTRYPOINT /usr/bin/supervisord -c /app/supervisord.conf
