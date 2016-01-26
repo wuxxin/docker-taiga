@@ -1,2 +1,4 @@
 #!/bin/bash
-cd /app/taiga-front-dist/dist/js
+cd /app/taiga-front-dist/dist
+mkdir plugins
+cd plugins
