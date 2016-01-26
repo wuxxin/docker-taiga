@@ -73,7 +73,7 @@ COPY conf/taiga/docker-settings.py /app/taiga-back/settings/docker.py
 RUN for a in conf media; do if test ! -d /data/$a; then mkdir -p /data/$a ; fi; done
 RUN if test ! -L /app/taiga-back/media; then ln -s /data/media /app/taiga-back/media ; fi
 RUN ln -s /app/local.py /app/taiga-back/settings/local.py
-RUN ln -s /app/conf.json /app/taiga-front-dist/dist/js/conf.json
+RUN ln -s /app/conf.json /app/taiga-front-dist/dist/conf.json
 
 # collect/generate static files
 RUN python manage.py collectstatic --noinput
