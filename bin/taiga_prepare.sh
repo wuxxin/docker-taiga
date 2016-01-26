@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pushd /app/taiga-back
+
 # Setup database automatically if needed
 if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
   python /app/checkdb.py
@@ -40,3 +42,5 @@ if [ "$TAIGA_SSL" = "True" ]; then
   sed -i "s/ws:\/\//wss:\/\//g" /app/conf.json
   mv /etc/nginx/ssl.conf /etc/nginx/conf.d/default.conf
 fi
+
+popd >> /dev/null

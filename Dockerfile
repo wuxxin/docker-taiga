@@ -15,6 +15,7 @@ RUN set -x; \
         ca-certificates \
         wget \
         supervisor \
+        gettext \
         nginx \
         sudo \
     && rm -rf /var/lib/apt/lists/*
