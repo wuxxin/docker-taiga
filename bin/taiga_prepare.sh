@@ -14,14 +14,16 @@ if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
     python manage.py loaddata initial_user
     python manage.py loaddata initial_project_templates
     python manage.py loaddata initial_role
-    python manage.py compilemessages
   fi
 fi
 
+echo "migrate, compile messages, generate static files"
+python manage.py migrate --noinput
+python manage.py compilemessages
+python manage.py collectstatic --noinput
 # Look for static folder, if it does not exist, then generate it
-if [ ! -d "/app/taiga-back/static" ]; then
-  python manage.py collectstatic --noinput
-fi
+#if [ ! -d "/app/taiga-back/static" ]; then
+#fi
 
 # Automatically replace "TAIGA_HOSTNAME" with the environment variable
 sed -i "s/TAIGA_HOSTNAME/$TAIGA_HOSTNAME/g" /app/conf.json
