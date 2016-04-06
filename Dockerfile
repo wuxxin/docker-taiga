@@ -97,6 +97,6 @@ RUN chmod +x /docker-entrypoint.sh
 ENV WEB_CONCURRENCY=2
 
 VOLUME ["/data"]
-EXPOSE 80 443
+EXPOSE 80
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["web"]
