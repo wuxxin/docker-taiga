@@ -9,7 +9,7 @@ PUBLIC_REGISTER_ENABLED = os.getenv('TAIGA_PUBLIC_REGISTER_ENABLED', 'false').lo
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {'default': dj_database_url.config() }
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql')
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 else:
     DATABASES = {
     'default': {
