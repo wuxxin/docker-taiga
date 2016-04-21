@@ -9,6 +9,5 @@ if [ ! -e "$WSGI_FILE" ]; then
     exit 1
 fi
 
-pushd ${CONF_DIR} >> /dev/null
+cd ${CONF_DIR}
 exec /usr/local/bin/gunicorn -b 127.0.0.1:8000 --pythonpath ${CONF_DIR} taiga.wsgi:application
-popd >> /dev/null

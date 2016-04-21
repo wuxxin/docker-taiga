@@ -21,11 +21,6 @@ fi
 
 echo "migrate, compile messages, generate static files"
 python manage.py migrate --noinput
-python manage.py compilemessages
-python manage.py collectstatic --noinput
-# Look for static folder, if it does not exist, then generate it
-#if [ ! -d "/app/taiga-back/static" ]; then
-#fi
 
 # Automatically replace "TAIGA_HOSTNAME" with the environment variable
 sed -i "s/TAIGA_HOSTNAME/$TAIGA_HOSTNAME/g" /app/conf.json
@@ -40,7 +35,7 @@ if [ "$TAIGA_SSL" = "True" ]; then
   echo "Enabling SSL support!"
   sed -i "s/http:\/\//https:\/\//g" /app/conf.json
   sed -i "s/ws:\/\//wss:\/\//g" /app/conf.json
-  mv /etc/nginx/ssl.conf /etc/nginx/conf.d/default.conf
+  # mv /etc/nginx/ssl.conf /etc/nginx/conf.d/default.conf
 fi
 
 popd >> /dev/null

@@ -1,8 +1,7 @@
-FROM python:3.4
+FROM python:3
 MAINTAINER Benjamin Hutchins <ben@hutchins.co>
 
 # Install nginx from custom repository
-ENV NGINX_VERSION 1.9.6-1~jessie
 COPY conf/nginx_signing.key /tmp
 RUN apt-key add /tmp/nginx_signing.key
 RUN echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list
@@ -18,17 +17,14 @@ RUN set -x; \
         gettext \
         nginx \
         sudo \
+        subversion \
+    && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/*
 
 # setup locale
+ENV LANG=en_US.UTF-8
+RUN echo -e "LANG=en_US.UTF-8\nLC_MESSAGES=POSIX\nLANGUAGE=en\n" > /etc/default/locale
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-COPY conf/locale.gen /etc/locale.gen
-RUN echo "LANG=en_US.UTF-8" > /etc/default/locale
-RUN echo "LC_TYPE=en_US.UTF-8" > /etc/default/locale
-RUN echo "LC_MESSAGES=POSIX" >> /etc/default/locale
-RUN echo "LANGUAGE=en" >> /etc/default/locale
-ENV LANG en_US.UTF-8
-ENV LC_TYPE en_US.UTF-8
 
 # setup fallback env
 ENV TAIGA_SSL False
@@ -36,6 +32,8 @@ ENV TAIGA_HOSTNAME localhost
 ENV TAIGA_SECRET_KEY "!!!REPLACE-ME-j1598u1J^U*(y251u98u51u5981urf98u2o5uvoiiuzhlit3)!!!"
 ENV TAIGA_DB_NAME postgres
 ENV TAIGA_DB_USER postgres
+# gunicorn uses WEB_CONCURRENCY
+ENV WEB_CONCURRENCY=4
 
 # Add user to run the application
 RUN adduser app --disabled-password --home /app
@@ -43,16 +41,6 @@ RUN adduser app --disabled-password --home /app
 # copy sources to destination
 COPY taiga-back /app/taiga-back
 COPY taiga-front-dist/ /app/taiga-front-dist
-
-# nginx config
-COPY conf/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY conf/nginx/taiga.conf /etc/nginx/conf.d/default.conf
-COPY conf/nginx/ssl.conf /etc/nginx/ssl.conf
-COPY conf/nginx/taiga-events.conf /etc/nginx/taiga-events.conf
-RUN  service nginx stop
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 # install python packages
 WORKDIR /app/taiga-back
@@ -76,14 +64,26 @@ RUN if test ! -L /app/taiga-back/media; then ln -s /data/media /app/taiga-back/m
 RUN ln -s /app/local.py /app/taiga-back/settings/local.py
 RUN ln -s /app/conf.json /app/taiga-front-dist/dist/conf.json
 
-# collect/generate static files
-RUN python manage.py collectstatic --noinput
-
 # all files belong to app-user
 RUN chown -R app:app /app/
 
-# regenerate locales
-RUN locale -a
+USER app
+
+# collect/generate static files
+RUN python manage.py compilemessages
+RUN python manage.py collectstatic --noinput
+
+USER root
+
+# nginx config
+COPY conf/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY conf/nginx/taiga.conf /etc/nginx/conf.d/default.conf
+COPY conf/nginx/ssl.conf /etc/nginx/ssl.conf
+COPY conf/nginx/taiga-events.conf /etc/nginx/taiga-events.conf
+RUN  service nginx stop
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 # container startup files
 COPY conf/supervisord.conf /app/supervisord.conf
@@ -93,8 +93,6 @@ COPY bin/docker-entrypoint.sh /docker-entrypoint.sh
 COPY bin/checkdb.py /app/checkdb.py
 RUN for i in gunicorn_start.sh taiga_prepare.sh checkdb.py; do chmod +x /app/$i; done
 RUN chmod +x /docker-entrypoint.sh
-
-ENV WEB_CONCURRENCY=2
 
 VOLUME ["/data"]
 EXPOSE 80

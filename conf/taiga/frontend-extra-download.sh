@@ -1,4 +1,3 @@
 #!/bin/bash
-cd /app/taiga-front-dist/dist
-mkdir plugins
-cd plugins
+mkdir -p /app/taiga-front-dist/dist/plugins
+cd /app/taiga-front-dist/dist/plugins
