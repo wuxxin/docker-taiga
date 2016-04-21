@@ -1,6 +1,13 @@
 FROM python:3
 MAINTAINER Benjamin Hutchins <ben@hutchins.co>
 
+# setup locale
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+RUN echo -e "LANG=en_US.UTF-8\nLANGUAGE=en_US:en\nLC_ALL=en_US.UTF-8\nLC_MESSAGES=POSIX\n" > /etc/default/locale
+RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
+
 # Install nginx from custom repository
 COPY conf/nginx_signing.key /tmp
 RUN apt-key add /tmp/nginx_signing.key
@@ -21,10 +28,6 @@ RUN set -x; \
     && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/*
 
-# setup locale
-ENV LANG=en_US.UTF-8
-RUN echo -e "LANG=en_US.UTF-8\nLC_MESSAGES=POSIX\nLANGUAGE=en\n" > /etc/default/locale
-RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # setup fallback env
 ENV TAIGA_SSL False
