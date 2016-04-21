@@ -1,5 +1,5 @@
 FROM python:3
-MAINTAINER Benjamin Hutchins <ben@hutchins.co>
+MAINTAINER Wuxxin <wuxxin@gmail.com>
 
 # Install nginx from custom repository
 COPY conf/nginx_signing.key /tmp

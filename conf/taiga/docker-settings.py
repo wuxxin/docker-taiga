@@ -9,16 +9,23 @@ PUBLIC_REGISTER_ENABLED = os.getenv('TAIGA_PUBLIC_REGISTER_ENABLED', 'false').lo
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {'default': dj_database_url.config() }
-    DATABASES['default']['ENGINE'] = re.sub(
-        'django.db(.+)', 'transaction_hooks\\1', DATABASES['default']['ENGINE'])
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql')
 else:
     DATABASES = {
     'default': {
-        'ENGINE': 'transaction_hooks.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('TAIGA_DB_NAME'),
         'HOST': os.getenv('POSTGRES_PORT_5432_TCP_ADDR') or os.getenv('TAIGA_DB_HOST'),
         'USER': os.getenv('TAIGA_DB_USER'),
         'PASSWORD': os.getenv('POSTGRES_ENV_POSTGRES_PASSWORD') or os.getenv('TAIGA_DB_PASSWORD')
+        }
+    }
+
+if os.getenv('MEMCACHED_URL'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': os.getenv('MEMCACHED_URL').split('//')[1],
         }
     }
 
