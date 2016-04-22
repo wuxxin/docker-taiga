@@ -1,2 +1,5 @@
 dj_database_url
 gunicorn
+taiga-contrib-gogs
+python-memcached
+# taiga-contrib-ldap-auth
